@@ -108,3 +108,42 @@ server
 })
 
 //PUT - Update the user with specified id
+server
+.put('/api/users/:id', (req, res) => {
+    const { id } = req.params;
+    const user = req.body;
+
+    if (!(userInfo && userInfo.name && userInfo.bio)){
+        res.status(400).json({
+            errorMessage: "Please provide name and bio for the user."
+        });
+        return true;
+    }
+
+    if (!(typeof user.name === "string" && typeof user.bio === "string")) {
+		res.status(400).json({
+			errorMessage: "Some fields have incorrect data"
+		});
+		return true;
+	}
+
+    Users
+    .update(id, user)
+    .then(users => {
+        if (users) {
+            findById(id)
+            .then (users => {
+                res.status(200).json(users);
+            });
+            
+        } else {
+            res.status(404).json({
+                errorMessage: "The user with the specified ID does not exist."
+            });
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({errorMessage: "The user could not be removed"})
+    });
+})
